@@ -1,6 +1,6 @@
-package grammar.samples
-
 import dsl.*
+import extension.print.toAndrewDuncanString
+import extension.print.toFitVutbrToString
 
 /**
  * <Program>       -> <FunctionList> EOF
@@ -38,7 +38,7 @@ import dsl.*
  * <Expression>    -> TRUE
  * <Expression>    -> FALSE
  **/
-val GRAMMAR = grammarOf {
+val JYOLANG = grammarOf {
     nonTerminal("Program") {
         reproduced("FunctionList", KEYWORDS.EOF)
     }
@@ -61,10 +61,10 @@ val GRAMMAR = grammarOf {
         reproduced("id", ":", "Type")
     }
     nonTerminal("Type") {
-        reproduced(KEYWORDS.TypeInt)
-        reproduced(KEYWORDS.TypeFloat)
-        reproduced(KEYWORDS.TypeBoolean)
-        reproduced(KEYWORDS.TypeArray, "<", "Type", ">")
+        reproduced(KEYWORDS.TYPE.Int)
+        reproduced(KEYWORDS.TYPE.Float)
+        reproduced(KEYWORDS.TYPE.Boolean)
+        reproduced(KEYWORDS.TYPE.Array, "<", "Type", ">")
     }
     nonTerminal("Statement") {
         reproduced("Condition")
@@ -75,23 +75,23 @@ val GRAMMAR = grammarOf {
         reproduced("CompositeStatement")
     }
     nonTerminal("Condition") {
-        reproduced(KEYWORDS.Condition, "(", "Expression", ")", "Statement", "OptionalElse")
+        reproduced(KEYWORDS.ConditionIf, "(", "Expression", ")", "Statement", "OptionalElse")
     }
     nonTerminal("OptionalElse") {
-        reproduced("else", "Statement")
+        reproduced(KEYWORDS.ConditionElse, "Statement")
         reproducedEmptySymbol()
     }
     nonTerminal("Loop") {
-        reproduced(KEYWORDS.CycleWithPreCondition, "(", "Expression", ")", "Statement")
+        reproduced(KEYWORDS.Cycle, "(", "Expression", ")", "Statement")
     }
     nonTerminal("Decl") {
-        reproduced("var", "id", ":", "Type", ";")
+        reproduced(KEYWORDS.Declaration, "id", ":", "Type", ";")
     }
     nonTerminal("Assign") {
         reproduced("id", "=", "Expression", ";")
     }
     nonTerminal("Return") {
-        reproduced("return", "Expression", ";")
+        reproduced(KEYWORDS.Return, "Expression", ";")
     }
     nonTerminal("CompositeStatement") {
         reproduced("{", "StatementList", "}")
@@ -111,11 +111,20 @@ val GRAMMAR = grammarOf {
 object KEYWORDS {
     const val EOF = "EOF"
     const val Function = "func"
-    const val TypeInt = "Int"
-    const val TypeFloat = "Float"
-    const val TypeBoolean = "Bool"
-    const val TypeArray = "Array"
-    const val Condition = "if"
+    const val ConditionIf = "if"
     const val ConditionElse = "else"
-    const val CycleWithPreCondition = "while"
+    const val Cycle = "while"
+    const val Return = "return"
+    const val Declaration = "var"
+
+    object TYPE {
+        const val Int = "Int"
+        const val Float = "Float"
+        const val Boolean = "Bool"
+        const val Array = "Array"
+    }
+}
+
+fun main(args: Array<String>) {
+    println(JYOLANG.toAndrewDuncanString())
 }

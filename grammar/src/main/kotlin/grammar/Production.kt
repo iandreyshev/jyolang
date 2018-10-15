@@ -7,10 +7,6 @@ data class Production(
     constructor(vararg symbols: GrammarSymbol)
             : this(symbols.toList())
 
-    val firstOrNull by lazy {
-        symbols.firstOrNull()
-    }
-
     val isEpsilon by lazy {
         symbols.first().terminal == Terminal.emptySymbol()
     }

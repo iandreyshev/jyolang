@@ -1,14 +1,12 @@
 import extension.addToList
 import grammar.Terminal
-import grammar.samples.GRAMMAR
-import grammar.samples.KEYWORDS
 import org.junit.Test
 import parser.Parser
 import parser.ParsingTable
 
 class ParserTest {
 
-    private val mTable = ParsingTable(GRAMMAR)
+    private val mTable = ParsingTable(JYOLANG)
     private val mParser: Parser = Parser()
 
     @Test
@@ -44,7 +42,7 @@ class ParserTest {
 
     private fun parse(text: String) {
         try {
-            mParser.execute(GRAMMAR.root, mTable, TestLexer(text + " ${KEYWORDS.EOF}"))
+            mParser.execute(JYOLANG.root, mTable, TestLexer(text + " ${KEYWORDS.EOF}"))
             println("Input is OK")
         } catch (ex: Exception) {
             println("Error:\n ${ex.message}")

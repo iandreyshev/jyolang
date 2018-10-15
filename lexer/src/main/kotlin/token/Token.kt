@@ -1,5 +1,9 @@
+package token
+
+import grammar.Terminal
+
 data class Token(
-        var literal: String,
+        var terminal: Terminal,
         var position: Int,
         var length: Int,
         var rowNumber: Int

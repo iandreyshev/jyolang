@@ -70,6 +70,7 @@ class ParsingTable(
         } else {
             terminal
         }
+
         get(nonTerminal.literal)?.put(terminalIndex.literal, production)
     }
 

@@ -1,8 +1,6 @@
 import grammar.GrammarSymbol
 import grammar.NonTerminal
 import grammar.Terminal
-import grammar.samples.GRAMMAR
-import grammar.samples.KEYWORDS
 import org.junit.Assert
 import org.junit.Test
 
@@ -45,57 +43,57 @@ class FollowSetTest {
 
     @Test
     fun statement() = "Statement" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun condition() = "Condition" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun optionalElse() = "OptionalElse" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun loop() = "Loop" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun decl() = "Decl" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun assign() = "Assign" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun `return`() = "Return" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
     @Test
     fun compositeStatement() = "CompositeStatement" expected setOf(
-            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal("else"),
-            Terminal(KEYWORDS.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(KEYWORDS.Function), Terminal("id"), Terminal(KEYWORDS.ConditionIf), Terminal(KEYWORDS.ConditionElse),
+            Terminal(KEYWORDS.Cycle), Terminal(KEYWORDS.Declaration), Terminal(KEYWORDS.Return), Terminal("{"),
             Terminal("}"), Terminal(KEYWORDS.EOF)
     )
 
@@ -110,7 +108,7 @@ class FollowSetTest {
     )
 
     private infix fun String.expected(expectedTerminals: Collection<Terminal>) {
-        val set = GRAMMAR.followSetFor(GrammarSymbol.from(NonTerminal(this)))
+        val set = JYOLANG.followSetFor(GrammarSymbol.from(NonTerminal(this)))
         Assert.assertEquals(expectedTerminals.count(), set.count())
         Assert.assertEquals(expectedTerminals, set)
     }
