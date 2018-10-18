@@ -1,10 +1,9 @@
 package token
 
-import grammar.Terminal
-
 data class Token(
-        var terminal: Terminal,
-        var position: Int,
-        var length: Int,
-        var rowNumber: Int
+        var terminal: String,
+        var isEnd: Boolean = false,
+        var position: Int = 0,
+        var length: Int = 0,
+        var rowNumber: Int = 0
 )
