@@ -1,39 +1,40 @@
 import grammar.GrammarSymbol
 import grammar.NonTerminal
 import grammar.Terminal
-import grammar.samples.GRAMMAR
-import grammar.samples.KEYWORDS
+import grammar.rules.YOLANG
+import grammar.rules.Keyword
+import grammar.rules.TypeName
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import parser.ParsingTable
 
 class ParsingTableTest {
 
-    private val mTable = ParsingTable(GRAMMAR)
+    private val mTable = ParsingTable(YOLANG)
 
     @Test
     fun program() = testTableRow("Program") {
-        KEYWORDS.EOF expected listOf(
-                nonTerminal("FunctionList"), terminal(KEYWORDS.EOF)
+        Keyword.EOF expected listOf(
+                nonTerminal("FunctionList"), terminal(Keyword.EOF)
         )
-        KEYWORDS.Function expected listOf(
-                nonTerminal("FunctionList"), terminal(KEYWORDS.EOF)
+        Keyword.Function expected listOf(
+                nonTerminal("FunctionList"), terminal(Keyword.EOF)
         )
     }
 
     @Test
     fun functionList() = testTableRow("FunctionList") {
-        KEYWORDS.EOF.expectedEmptySymbol()
-        KEYWORDS.Function expected listOf(
+        Keyword.EOF.expectedEmptySymbol()
+        Keyword.Function expected listOf(
                 nonTerminal("Function"), nonTerminal("FunctionList")
         )
     }
 
     @Test
     fun function() = testTableRow("Function") {
-        KEYWORDS.Function expected listOf(
-                terminal(KEYWORDS.Function), terminal("id"), terminal("("), nonTerminal("ParamList") ,terminal(")"),
-                terminal(":"), nonTerminal("Type"), terminal(">"), nonTerminal("Statement")
+        Keyword.Function expected listOf(
+                terminal(Keyword.Function), terminal("id"), terminal("("), nonTerminal("ParamList") ,terminal(")"),
+                terminal("->"), nonTerminal("Type"), terminal(":"), nonTerminal("Statement")
         )
     }
 
@@ -62,17 +63,17 @@ class ParsingTableTest {
 
     @Test
     fun type() = testTableRow("Type") {
-        KEYWORDS.TypeInt expected listOf(
-                terminal(KEYWORDS.TypeInt)
+        TypeName.Int expected listOf(
+                terminal(TypeName.Int)
         )
-        KEYWORDS.TypeFloat expected listOf(
-                terminal(KEYWORDS.TypeFloat)
+        TypeName.Float expected listOf(
+                terminal(TypeName.Float)
         )
-        KEYWORDS.TypeBoolean expected listOf(
-                terminal(KEYWORDS.TypeBoolean)
+        TypeName.Boolean expected listOf(
+                terminal(TypeName.Boolean)
         )
-        KEYWORDS.TypeArray expected listOf(
-                terminal(KEYWORDS.TypeArray), terminal("["), nonTerminal("Type"), terminal("]")
+        TypeName.Array expected listOf(
+                terminal(TypeName.Array), terminal("<"), nonTerminal("Type"), terminal(">")
         )
     }
 
@@ -81,10 +82,10 @@ class ParsingTableTest {
         "id" expected listOf(
                 nonTerminal("Assign")
         )
-        KEYWORDS.Condition expected listOf(
+        Keyword.Condition expected listOf(
                 nonTerminal("Condition")
         )
-        KEYWORDS.CycleWithPreCondition expected listOf(
+        Keyword.CycleWithPreCondition expected listOf(
                 nonTerminal("Loop")
         )
         "var" expected listOf(
@@ -100,16 +101,16 @@ class ParsingTableTest {
 
     @Test
     fun condition() = testTableRow("Condition") {
-        KEYWORDS.Condition expected listOf(
-                terminal(KEYWORDS.Condition), terminal("("), nonTerminal("Expression"), terminal(")"),
+        Keyword.Condition expected listOf(
+                terminal(Keyword.Condition), terminal("("), nonTerminal("Expression"), terminal(")"),
                 nonTerminal("Statement"), nonTerminal("OptionalElse")
         )
     }
 
     @Test
     fun optionalElse() = testTableRow("OptionalElse") {
-        KEYWORDS.EOF.expectedEmptySymbol()
-        KEYWORDS.Function.expectedEmptySymbol()
+        Keyword.EOF.expectedEmptySymbol()
+        Keyword.Function.expectedEmptySymbol()
         "id".expectedEmptySymbol()
         "if".expectedEmptySymbol()
         "else".expectedEmptySymbol()
@@ -127,7 +128,7 @@ class ParsingTableTest {
                 assertEquals(data.value.toHashSet(), productionFromTable?.toHashSet())
             }
 
-            GRAMMAR.terminals.toMutableList().apply {
+            YOLANG.terminals.toMutableList().apply {
                 removeAll(mTestData.keys)
             }.forEach { emptyColumn ->
                 val tableCell = mTable[row, emptyColumn]

@@ -1,8 +1,10 @@
 import grammar.GrammarSymbol
 import grammar.NonTerminal
 import grammar.Terminal
-import grammar.samples.GRAMMAR
-import grammar.samples.KEYWORDS
+import grammar.rules.YOLANG
+import grammar.rules.Keyword
+import grammar.rules.RuleName
+import grammar.rules.TypeName
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,17 +12,17 @@ class FirstSetTest {
 
     @Test
     fun program() = "Program" expected setOf(
-            Terminal(KEYWORDS.EOF), Terminal(KEYWORDS.Function)
+            Terminal(Keyword.EOF), Terminal(Keyword.Function)
     )
 
     @Test
     fun functionList() = "FunctionList" expected setOf(
-            Terminal.emptySymbol(), Terminal(KEYWORDS.Function)
+            Terminal.emptySymbol(), Terminal(Keyword.Function)
     )
 
     @Test
     fun function() = "Function" expected setOf(
-            Terminal(KEYWORDS.Function)
+            Terminal(Keyword.Function)
     )
 
     @Test
@@ -40,19 +42,19 @@ class FirstSetTest {
 
     @Test
     fun type() = "Type" expected setOf(
-            Terminal(KEYWORDS.TypeInt), Terminal(KEYWORDS.TypeFloat), Terminal(KEYWORDS.TypeBoolean),
-            Terminal(KEYWORDS.TypeArray)
+            Terminal(TypeName.Int), Terminal(TypeName.Float), Terminal(TypeName.Boolean),
+            Terminal(TypeName.Array)
     )
 
     @Test
     fun statement() = "Statement" expected setOf(
-            Terminal("id"), Terminal(KEYWORDS.Condition), Terminal(KEYWORDS.CycleWithPreCondition),
-            Terminal("var"), Terminal("return"), Terminal("{")
+            Terminal(RuleName.IDENTIFIER), Terminal(Keyword.Condition), Terminal(Keyword.CycleWithPreCondition),
+            Terminal(Keyword.VariableDecl), Terminal("return"), Terminal("{")
     )
 
     @Test
     fun condition() = "Condition" expected setOf(
-            Terminal(KEYWORDS.Condition)
+            Terminal(Keyword.Condition)
     )
 
     @Test
@@ -87,7 +89,7 @@ class FirstSetTest {
 
     @Test
     fun statementList() = "StatementList" expected setOf(
-            Terminal.emptySymbol(), Terminal("id"), Terminal(KEYWORDS.Condition), Terminal(KEYWORDS.CycleWithPreCondition),
+            Terminal.emptySymbol(), Terminal("id"), Terminal(Keyword.Condition), Terminal(Keyword.CycleWithPreCondition),
             Terminal("var"), Terminal("return"), Terminal("{")
     )
 
@@ -97,7 +99,7 @@ class FirstSetTest {
     )
 
     private infix fun String.expected(expectedTerminals: Collection<Terminal>) {
-        val set = GRAMMAR.firstSetFor(GrammarSymbol.from(NonTerminal(this)))
+        val set = YOLANG.firstSetFor(GrammarSymbol.from(NonTerminal(this)))
         assertEquals(expectedTerminals.count(), set.count())
         assertEquals(expectedTerminals, set)
     }

@@ -19,12 +19,12 @@ class Parser {
                 table[topNonTerminal ?: return@lazy null, token]
             }
 
-            println()
-            println(stack.joinToString(" "))
-            println(lexer.toString())
-            println(topNonTerminal)
-            println(productionFromTable)
-            println("$tokenPosition $token")
+//            println()
+//            println(stack.joinToString(" "))
+//            println(lexer.toString())
+//            println(topNonTerminal)
+//            println(productionFromTable)
+//            println("$tokenPosition $token")
 
             when {
                 stack.peek().terminal == token -> {
@@ -36,6 +36,7 @@ class Parser {
                     throw ParserException(tokenPosition, stack.peek().toString())
                 productionFromTable == null -> {
                     val expectedSymbols = table.productionsFor(topNonTerminal).keys
+                            .filter { it != Grammar.END_OF_INPUT_SYMBOL }
                     throw ParserException(tokenPosition, token.literal, expectedSymbols)
                 }
                 else -> {

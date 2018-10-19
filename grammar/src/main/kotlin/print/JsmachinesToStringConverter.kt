@@ -1,7 +1,7 @@
 package grammar.print
 
 import grammar.Grammar
-import grammar.samples.GRAMMAR
+import grammar.rules.YOLANG
 
 /**
  * http://jsmachines.sourceforge.net/machines/ll1.html
@@ -34,5 +34,5 @@ object JsmachinesToStringConverter {
 }
 
 fun main(args: Array<String>) {
-    println(JsmachinesToStringConverter.toString(GRAMMAR))
+    println(JsmachinesToStringConverter.toString(YOLANG))
 }

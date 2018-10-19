@@ -1,7 +1,7 @@
 package grammar.print
 
 import grammar.Grammar
-import grammar.samples.GRAMMAR
+import grammar.rules.YOLANG
 
 /**
  * https://planetcalc.com/5600/
@@ -32,5 +32,5 @@ object PlanetCalcToStringConverter {
 }
 
 fun main(args: Array<String>) {
-    println(PlanetCalcToStringConverter.toString(GRAMMAR))
+    println(PlanetCalcToStringConverter.toString(YOLANG))
 }

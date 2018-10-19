@@ -2,10 +2,9 @@ package dsl
 
 import grammar.*
 
-typealias GDSLSymbol = String
-typealias GDSLProduction = List<GDSLSymbol>
+typealias GDSLProduction = List<String>
 typealias GDSLAlternatives = List<GDSLProduction>
-typealias GDSLRule = Pair<GDSLSymbol, GDSLAlternatives>
+typealias GDSLRule = Pair<String, GDSLAlternatives>
 
 fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
     val builder = RuleBuilder().apply(director)
@@ -43,20 +42,28 @@ fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
     return Grammar(rulesList)
 }
 
+fun grammarRules(director: IGDSLRuleBuilder.() -> Unit): List<GDSLRule> =
+        RuleBuilder().apply(director).build()
+
 interface IGDSLRuleBuilder {
-    fun nonTerminal(symbol: GDSLSymbol, director: IGDSLProductionBuilder.() -> Unit)
+    fun nonTerminal(symbol: String, director: IGDSLProductionBuilder.() -> Unit)
+    fun rules(rules: List<GDSLRule>)
 }
 
-private class RuleBuilder : IGDSLRuleBuilder {
+class RuleBuilder : IGDSLRuleBuilder {
 
     private val mRules = mutableListOf<GDSLRule>()
 
-    override fun nonTerminal(symbol: GDSLSymbol, director: IGDSLProductionBuilder.() -> Unit) {
+    override fun nonTerminal(symbol: String, director: IGDSLProductionBuilder.() -> Unit) {
         val builder = ProductionBuilder().apply(director)
         mRules.add(symbol to builder.build())
     }
 
-    fun build(): List<GDSLRule> = mRules
+    override fun rules(rules: List<GDSLRule>) {
+        mRules.addAll(rules)
+    }
+
+    internal fun build(): List<GDSLRule> = mRules
 
 }
 

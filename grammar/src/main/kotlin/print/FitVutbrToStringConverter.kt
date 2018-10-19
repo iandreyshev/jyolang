@@ -1,7 +1,7 @@
 package grammar.print
 
 import grammar.*
-import grammar.samples.GRAMMAR
+import grammar.rules.YOLANG
 
 object FitVutbrToStringConverter {
 
@@ -32,5 +32,5 @@ object FitVutbrToStringConverter {
 }
 
 fun main(args: Array<String>) {
-    println(FitVutbrToStringConverter.toString(GRAMMAR))
+    println(FitVutbrToStringConverter.toString(YOLANG))
 }
