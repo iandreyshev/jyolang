@@ -1,10 +1,11 @@
 package parser
 
 import grammar.*
+import token.Token
 import java.util.*
 
 class Parser {
-    fun execute(root: GrammarSymbol, table: ParsingTable, lexer: Iterator<Terminal>) {
+    fun execute(root: GrammarSymbol, table: ParsingTable, lexer: Iterator<Token>) {
         val stack = Stack<GrammarSymbol>()
         stack.add(Terminal.endOfInput().toSymbol())
         stack.add(root)
@@ -16,18 +17,19 @@ class Parser {
                 stack.peek().nonTerminal
             }
             val productionFromTable: Production? by lazy {
-                table[topNonTerminal ?: return@lazy null, token]
+                table[topNonTerminal ?: return@lazy null, token.terminal]
             }
 
-//            println()
+            println()
 //            println(stack.joinToString(" "))
 //            println(lexer.toString())
-//            println(topNonTerminal)
-//            println(productionFromTable)
-//            println("$tokenPosition $token")
+            println("topNonTerminal '$topNonTerminal'")
+            println("productionFromTable '$productionFromTable'")
+            println("tokenPosition token '$tokenPosition' '$token'")
+            println("stack.peek().terminal '${stack.peek().terminal}")
 
             when {
-                stack.peek().terminal == token -> {
+                stack.peek().terminal?.type == token.type -> {
                     stack.pop()
                     token = lexer.next()
                     ++tokenPosition
@@ -37,7 +39,7 @@ class Parser {
                 productionFromTable == null -> {
                     val expectedSymbols = table.productionsFor(topNonTerminal).keys
                             .filter { it != Grammar.END_OF_INPUT_SYMBOL }
-                    throw ParserException(tokenPosition, token.literal, expectedSymbols)
+                    throw ParserException(tokenPosition, token.terminal.literal, expectedSymbols)
                 }
                 else -> {
                     stack.pop()

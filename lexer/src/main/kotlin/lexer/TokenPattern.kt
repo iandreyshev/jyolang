@@ -1,22 +1,33 @@
 package lexer
 
-import java.util.regex.Pattern
+import grammar.rules.Keyword
+import grammar.rules.Type
 
 internal object TokenPattern {
 
     private const val MAX_IDENTIFIER_SIZE = 120
 
-    val IDENTIFIER = patternFrom("[_a-zA-Z][_a-zA-Z0-9]{1,${MAX_IDENTIFIER_SIZE - 1}}")
-    val NUMBER = patternFrom("([1-9][0-9]*)|[0-9]")
-    val LETTER_OPERATOR = patternFrom("if|else|while|var|func")
-    val SYMBOL_OPERATOR = patternFrom("\\+|\\-|\\*|\\/|\\=")
-    val WORK_SYMBOLS = patternFrom("\\:|\\,|\\;|->|\\[|\\]|\\(|\\)|\\{|\\}")
+    const val IDENTIFIER = "[_a-zA-Z][_a-zA-Z0-9]{1,${MAX_IDENTIFIER_SIZE - 1}}"
 
-    val COMMENT = patternFrom("\\/\\/(.|\n^ \n)*")
+    const val NUMBER = "([1-9][0-9]*)|[0-9]"
 
-    val INVALID_IDENTIFIER = patternFrom("[0-9]+${TokenPattern.IDENTIFIER.pattern()}")
+    const val LETTER_OPERATOR = Keyword.Function +
+            "|${Keyword.Condition}" +
+            "|${Keyword.ConditionElse}" +
+            "|${Keyword.Cycle}" +
+            "|${Keyword.VariableDecl}"
 
-    private fun patternFrom(pattern: String): Pattern =
-            "^($pattern)".toPattern()
+    const val TYPE_NAME = Type.Int +
+            "|${Type.Float}" +
+            "|${Type.Boolean}" +
+            "|${Type.Array}"
+
+    const val SYMBOL_OPERATOR = "\\+|\\-|\\*|\\/|\\="
+
+    const val WORK_SYMBOL = "\\:|\\,|\\;|->|\\[|\\]|\\(|\\)|\\{|\\}"
+
+    const val COMMENT = "\\/\\/(.|\n^ \n)*"
+
+    const val INVALID_IDENTIFIER = "[0-9]+${TokenPattern.IDENTIFIER}"
 
 }

@@ -1,68 +1,109 @@
 package lexer
 
+import grammar.SymbolType
+import grammar.rules.Keyword
 import token.Token
-import java.util.regex.Pattern
+import java.lang.Exception
 
-class Lexer(private val text: String) {
+class Lexer(private val text: String): Iterator<Token> {
 
     private var mCaretPosition: Int = 0
     private val mIsEOF: Boolean
         get() = mCaretPosition >= text.length
+    private var mToken: Token = Token.eof()
+
+    override fun hasNext(): Boolean = !mIsEOF
+
+    override fun next(): Token = read()
 
     fun read(): Token {
         skipGarbage()
+
         return when {
-            mIsEOF -> eof()
-            now(TokenPattern.INVALID_IDENTIFIER) -> undefined()
-            now(TokenPattern.IDENTIFIER) && now(TokenPattern.LETTER_OPERATOR) -> letterOperator()
-            now(TokenPattern.IDENTIFIER) -> identifier()
-            now(TokenPattern.NUMBER) -> number()
-            now(TokenPattern.SYMBOL_OPERATOR) -> symbolOperator()
-            now(TokenPattern.WORK_SYMBOLS) -> workSymbol()
-            else -> undefined()
+            mIsEOF -> Token.eof()
+
+            TokenPattern.INVALID_IDENTIFIER canTake ::undefined
+                    || now(TokenPattern.IDENTIFIER) && TokenPattern.LETTER_OPERATOR canTake ::letterOperator
+                    || TokenPattern.IDENTIFIER canTake ::identifier
+                    || TokenPattern.NUMBER canTake ::number
+                    || TokenPattern.SYMBOL_OPERATOR canTake ::symbolOperator
+                    || TokenPattern.WORK_SYMBOL canTake ::workSymbol -> mToken
+
+            else -> Token(text.take(1), SymbolType.UNDEFINED)
         }
     }
 
     private fun skipGarbage(): Boolean {
-        var isSkipped = false
+        var caretPositionBefore = mCaretPosition
 
         while (!mIsEOF) {
             if (text.first().isWhitespace()) {
-                isSkipped = true
+                ++caretPositionBefore
                 continue
-            } else if (now(TokenPattern.COMMENT)) {
-                isSkipped = true
-                continue
+            } else {
+                val comment = getBy(TokenPattern.COMMENT)
+                if (comment != null) {
+                    mCaretPosition += comment.length
+                    continue
+                }
             }
-
             break
         }
 
-        return isSkipped
+        return caretPositionBefore != mCaretPosition
     }
 
-    private fun now(pattern: Pattern): Boolean {
-        return pattern.matcher(text).find(mCaretPosition)
+    private fun now(pattern: String): Boolean =
+            pattern.toPattern().matcher(text).find(mCaretPosition)
+
+    private fun getBy(pattern: String): String? = try {
+        val patternFromStart = "^($pattern)".toPattern()
+        val textToRead = text.subSequence(mCaretPosition, text.length)
+        patternFromStart.matcher(textToRead).let {
+            println(text.subSequence(mCaretPosition, text.length))
+            it.lookingAt()
+            it.group(0)
+        }
+    } catch (ex: Exception) {
+        null
     }
 
-    private fun getBy(pattern: Pattern): String {
-        val string: String = pattern.matcher(text).group(0)
-        mCaretPosition += string.length
-        return string
+    private infix fun String.canTake(constructor: (String) -> Unit): Boolean {
+        getBy(this)?.let {
+            mCaretPosition += it.length
+            constructor(it)
+            return true
+        }
+        return false
     }
 
-    private fun eof(): Token = Token("EOF", true)
+    private fun identifier(literal: String) {
+        mToken = Token(literal, SymbolType.IDENTIFIER, positionBefore(literal))
+    }
 
-    private fun identifier(): Token = Token(getBy(TokenPattern.IDENTIFIER))
+    private fun letterOperator(literal: String) {
+        mToken = when (literal) {
+            Keyword.Function -> Token(literal, SymbolType.KEYWORD_FUNCTION, positionBefore(literal))
+            else -> Token(literal, SymbolType.UNDEFINED, positionBefore(literal))
+        }
+    }
 
-    private fun letterOperator(): Token = Token(getBy(TokenPattern.LETTER_OPERATOR))
+    private fun number(literal: String) {
+        mToken = Token(literal, SymbolType.NUMBER, positionBefore(literal))
+    }
 
-    private fun number(): Token = Token(getBy(TokenPattern.NUMBER))
+    private fun symbolOperator(literal: String) {
+        mToken = Token(literal, SymbolType.OPERATOR, positionBefore(literal))
+    }
 
-    private fun symbolOperator(): Token = Token(getBy(TokenPattern.SYMBOL_OPERATOR))
+    private fun workSymbol(literal: String) {
+        mToken = Token(literal, SymbolType.WORK_OPERATOR, positionBefore(literal))
+    }
 
-    private fun workSymbol(): Token = Token(getBy(TokenPattern.WORK_SYMBOLS))
+    private fun undefined(literal: String) {
+        mToken = Token("Undefined $literal", SymbolType.UNDEFINED, positionBefore(literal))
+    }
 
-    private fun undefined(): Token = Token("Undefined ${text.first()}", true)
+    private fun positionBefore(literal: String) = mCaretPosition - literal.length
 
 }

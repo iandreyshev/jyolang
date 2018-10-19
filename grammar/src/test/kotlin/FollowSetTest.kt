@@ -46,56 +46,56 @@ class FollowSetTest {
     @Test
     fun statement() = "Statement" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun condition() = "Condition" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun optionalElse() = "OptionalElse" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun loop() = "Loop" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun decl() = "Decl" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun assign() = "Assign" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun `return`() = "Return" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 
     @Test
     fun compositeStatement() = "CompositeStatement" expected setOf(
             Terminal(Keyword.Function), Terminal("id"), Terminal(Keyword.Condition), Terminal("else"),
-            Terminal(Keyword.CycleWithPreCondition), Terminal("var"), Terminal("return"), Terminal("{"),
+            Terminal(Keyword.Cycle), Terminal("var"), Terminal("return"), Terminal("{"),
             Terminal("}"), Terminal(Keyword.EOF)
     )
 

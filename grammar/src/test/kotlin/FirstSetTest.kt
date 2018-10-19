@@ -4,7 +4,7 @@ import grammar.Terminal
 import grammar.rules.YOLANG
 import grammar.rules.Keyword
 import grammar.rules.RuleName
-import grammar.rules.TypeName
+import grammar.rules.Type
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -42,13 +42,13 @@ class FirstSetTest {
 
     @Test
     fun type() = "Type" expected setOf(
-            Terminal(TypeName.Int), Terminal(TypeName.Float), Terminal(TypeName.Boolean),
-            Terminal(TypeName.Array)
+            Terminal(Type.Int), Terminal(Type.Float), Terminal(Type.Boolean),
+            Terminal(Type.Array)
     )
 
     @Test
     fun statement() = "Statement" expected setOf(
-            Terminal(RuleName.IDENTIFIER), Terminal(Keyword.Condition), Terminal(Keyword.CycleWithPreCondition),
+            Terminal(RuleName.IDENTIFIER), Terminal(Keyword.Condition), Terminal(Keyword.Cycle),
             Terminal(Keyword.VariableDecl), Terminal("return"), Terminal("{")
     )
 
@@ -89,7 +89,7 @@ class FirstSetTest {
 
     @Test
     fun statementList() = "StatementList" expected setOf(
-            Terminal.emptySymbol(), Terminal("id"), Terminal(Keyword.Condition), Terminal(Keyword.CycleWithPreCondition),
+            Terminal.emptySymbol(), Terminal("id"), Terminal(Keyword.Condition), Terminal(Keyword.Cycle),
             Terminal("var"), Terminal("return"), Terminal("{")
     )
 

@@ -1,22 +1,21 @@
 package grammar.rules
 
 import dsl.grammarRules
-
-const val FUNCTION_CALL_RULES_ROOT = "FunctionCall"
+import grammar.SymbolType
 
 val FUNCTION_CALL = grammarRules {
-    nonTerminal(FUNCTION_CALL_RULES_ROOT) {
-        reproduced("Identifier", "(", "ParamList" ,")")
+    nonTerminal(RuleName.FUNCTION_CALL) {
+        reproducedSymbolsSequence(rule("Identifier"), work("("), rule("ParamList") ,work(")"))
     }
     nonTerminal("ParamList") {
-        reproduced("Param", "TailParamList")
+        reproducedRulesSequence("Param", "TailParamList")
         reproducedEmptySymbol()
     }
     nonTerminal("TailParamList") {
-        reproduced(",", "Param", "TailParamList")
+        reproducedSymbolsSequence(work(","), rule("Param"), rule("TailParamList"))
         reproducedEmptySymbol()
     }
     nonTerminal("Param") {
-        reproduced(RuleName.IDENTIFIER)
+        reproducedSymbolsSequence(RuleName.IDENTIFIER with SymbolType.IDENTIFIER)
     }
 }

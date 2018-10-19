@@ -3,7 +3,7 @@ import grammar.NonTerminal
 import grammar.Terminal
 import grammar.rules.YOLANG
 import grammar.rules.Keyword
-import grammar.rules.TypeName
+import grammar.rules.Type
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import parser.ParsingTable
@@ -14,17 +14,10 @@ class ParsingTableTest {
 
     @Test
     fun program() = testTableRow("Program") {
-        Keyword.EOF expected listOf(
-                nonTerminal("FunctionList"), terminal(Keyword.EOF)
-        )
-        Keyword.Function expected listOf(
-                nonTerminal("FunctionList"), terminal(Keyword.EOF)
-        )
     }
 
     @Test
     fun functionList() = testTableRow("FunctionList") {
-        Keyword.EOF.expectedEmptySymbol()
         Keyword.Function expected listOf(
                 nonTerminal("Function"), nonTerminal("FunctionList")
         )
@@ -63,17 +56,17 @@ class ParsingTableTest {
 
     @Test
     fun type() = testTableRow("Type") {
-        TypeName.Int expected listOf(
-                terminal(TypeName.Int)
+        Type.Int expected listOf(
+                terminal(Type.Int)
         )
-        TypeName.Float expected listOf(
-                terminal(TypeName.Float)
+        Type.Float expected listOf(
+                terminal(Type.Float)
         )
-        TypeName.Boolean expected listOf(
-                terminal(TypeName.Boolean)
+        Type.Boolean expected listOf(
+                terminal(Type.Boolean)
         )
-        TypeName.Array expected listOf(
-                terminal(TypeName.Array), terminal("<"), nonTerminal("Type"), terminal(">")
+        Type.Array expected listOf(
+                terminal(Type.Array), terminal("<"), nonTerminal("Type"), terminal(">")
         )
     }
 
@@ -85,7 +78,7 @@ class ParsingTableTest {
         Keyword.Condition expected listOf(
                 nonTerminal("Condition")
         )
-        Keyword.CycleWithPreCondition expected listOf(
+        Keyword.Cycle expected listOf(
                 nonTerminal("Loop")
         )
         "var" expected listOf(
@@ -109,7 +102,6 @@ class ParsingTableTest {
 
     @Test
     fun optionalElse() = testTableRow("OptionalElse") {
-        Keyword.EOF.expectedEmptySymbol()
         Keyword.Function.expectedEmptySymbol()
         "id".expectedEmptySymbol()
         "if".expectedEmptySymbol()

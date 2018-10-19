@@ -1,6 +1,6 @@
 package grammar
 
-data class GrammarSymbol private constructor(
+data class GrammarSymbol constructor(
         val terminal: Terminal?,
         val nonTerminal: NonTerminal?
 ) {
@@ -12,6 +12,8 @@ data class GrammarSymbol private constructor(
 
     val isTerminal: Boolean = terminal != null && nonTerminal == null
     val isNonTerminal: Boolean = terminal == null && nonTerminal != null
+    val type: SymbolType?
+        get() = terminal?.type
 
     init {
         assert(isTerminal != isNonTerminal)

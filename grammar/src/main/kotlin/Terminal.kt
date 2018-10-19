@@ -6,12 +6,13 @@ data class Terminal constructor(
 
     companion object {
         fun endOfInput(): Terminal =
-                Terminal(Grammar.END_OF_INPUT_SYMBOL)
+                Terminal(Grammar.END_OF_INPUT_SYMBOL).apply { type = SymbolType.UNDEFINED }
 
         fun emptySymbol(): Terminal =
-                Terminal(Grammar.EMPTY_SYMBOL)
+                Terminal(Grammar.EMPTY_SYMBOL).apply { type = SymbolType.UNDEFINED }
     }
 
+    var type: SymbolType = SymbolType.UNDEFINED
     val isEpsilon: Boolean = literal == Grammar.EMPTY_SYMBOL
     val isDollar: Boolean = literal == Grammar.END_OF_INPUT_SYMBOL
 

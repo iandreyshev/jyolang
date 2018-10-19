@@ -15,7 +15,8 @@ class LexerTest {
             val token = lexer.read()
             println(token)
 
-            if (token.isEnd) {
+            if (token.isEofOrUndefined) {
+                println("Break")
                 break
             }
         }

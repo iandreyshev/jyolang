@@ -1,6 +1,6 @@
-package token
+package grammar
 
-enum class TokenType {
+enum class SymbolType {
     // Identifier
     IDENTIFIER,
 
@@ -13,9 +13,11 @@ enum class TokenType {
     KEYWORD_ELSE,
     KEYWORD_WHILE,
     KEYWORD_VAR,
+    KEYWORD_RETURN,
 
     // Operators
     OPERATOR,
+    WORK_OPERATOR,
 
     // Types
     TYPE_INT,

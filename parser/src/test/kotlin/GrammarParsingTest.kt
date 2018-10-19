@@ -1,7 +1,7 @@
 import dsl.GDSLRule
 import dsl.grammarOf
 import grammar.Grammar
-import grammar.rules.*
+import lexer.Lexer
 import parser.Parser
 import parser.ParsingTable
 
@@ -15,7 +15,7 @@ abstract class GrammarParsingTest(private val grammar: Grammar) {
 
     protected fun parse(text: String) {
         try {
-            mParser.execute(grammar.root, mTable, TestLexer(text + " ${Keyword.EOF}"))
+            mParser.execute(grammar.root, mTable, Lexer(text))
             println("Input is OK")
         } catch (ex: Exception) {
             println("Error: ${ex.message}")
