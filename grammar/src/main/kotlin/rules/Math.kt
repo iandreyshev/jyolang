@@ -11,23 +11,23 @@ val MATH_EXPRESSION = grammarRules {
         reproducedRulesSequence("Term", "TailExpr")
     }
     nonTerminal("TailExpr") {
-        reproducedSymbolsSequence(Operator.Plus with SymbolType.OPERATOR, rule("Term"), rule("TailExpr"))
-        reproducedSymbolsSequence(Operator.Minus with SymbolType.OPERATOR, rule("Term"), rule("TailExpr"))
+        reproducedSymbolsSequence(operator(Operator.Plus), rule("Term"), rule("TailExpr"))
+        reproducedSymbolsSequence(operator(Operator.Minus), rule("Term"), rule("TailExpr"))
         reproducedEmptySymbol()
     }
     nonTerminal("Term") {
         reproducedRulesSequence("Factor", "TailTerm")
     }
     nonTerminal("TailTerm") {
-        reproducedSymbolsSequence(Operator.Mul with SymbolType.OPERATOR, rule("Factor"), rule("TailTerm"))
-        reproducedSymbolsSequence(Operator.Div with SymbolType.OPERATOR, rule("Factor"), rule("TailTerm"))
+        reproducedSymbolsSequence(operator(Operator.Mul), rule("Factor"), rule("TailTerm"))
+        reproducedSymbolsSequence(operator(Operator.Div), rule("Factor"), rule("TailTerm"))
         reproducedEmptySymbol()
     }
     nonTerminal("Factor") {
         reproducedSymbolsSequence(work("("), rule("Expr"), work(")"))
-        reproducedSymbolsSequence(Operator.Minus with SymbolType.OPERATOR, rule("Factor"))
+        reproducedSymbolsSequence(operator(Operator.Minus), rule("Factor"))
         reproducedSymbolsSequence("IntegerLiteral" with SymbolType.NUMBER)
         reproducedSymbolsSequence("FloatLiteral" with SymbolType.NUMBER)
-        reproducedSymbolsSequence(RuleName.IDENTIFIER with SymbolType.IDENTIFIER)
+        reproducedSymbolsSequence(identifier())
     }
 }

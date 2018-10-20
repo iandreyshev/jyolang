@@ -1,7 +1,6 @@
 package grammar.rules
 
 import dsl.grammarRules
-import grammar.SymbolType
 
 val FUNCTION_CALL = grammarRules {
     nonTerminal(RuleName.FUNCTION_CALL) {
@@ -16,6 +15,6 @@ val FUNCTION_CALL = grammarRules {
         reproducedEmptySymbol()
     }
     nonTerminal("Param") {
-        reproducedSymbolsSequence(RuleName.IDENTIFIER with SymbolType.IDENTIFIER)
+        reproducedSymbolsSequence(identifier())
     }
 }

@@ -16,22 +16,19 @@ val YOLANG = grammarOf {
     }
     nonTerminal("Function") {
         reproducedSymbolsSequence(
-                Keyword.Function with SymbolType.KEYWORD_FUNCTION, RuleName.IDENTIFIER with SymbolType.IDENTIFIER,
-                work("("), rule("ParamDeclList"), work(")"), work("->"), rule("Type"), work(":"), rule("Statement"))
+                Keyword.Function with SymbolType.KEYWORD_FUNCTION, identifier(), work("("), rule("ParamDeclList"),
+                work(")"), work("->"), rule("Type"), work(":"), rule("Statement"))
     }
     nonTerminal("ParamDeclList") {
         reproducedRulesSequence("ParamDecl", "TailParamDeclList")
         reproducedEmptySymbol()
     }
     nonTerminal("TailParamDeclList") {
-        reproducedSymbolsSequence(
-                work(","),
-                rule("ParamDecl"),
-                rule("TailParamDeclList"))
+        reproducedSymbolsSequence(work(","), rule("ParamDecl"), rule("TailParamDeclList"))
         reproducedEmptySymbol()
     }
     nonTerminal("ParamDecl") {
-        reproducedSymbolsSequence(RuleName.IDENTIFIER with SymbolType.IDENTIFIER, work(":"), rule("Type"))
+        reproducedSymbolsSequence(identifier(), work(":"), rule("Type"))
     }
     nonTerminal("Type") {
         reproducedSymbol(Type.Int, SymbolType.TYPE_INT)
@@ -63,13 +60,11 @@ val YOLANG = grammarOf {
     }
     nonTerminal("Decl") {
         reproducedSymbolsSequence(
-                Keyword.VariableDecl with SymbolType.KEYWORD_VAR, RuleName.IDENTIFIER with SymbolType.IDENTIFIER,
-                work(":"), rule("Type"), work(";"))
+                Keyword.VariableDecl with SymbolType.KEYWORD_VAR, identifier(), work(":"), rule("Type"), work(";"))
     }
     nonTerminal("Assign") {
         reproducedSymbolsSequence(
-                RuleName.IDENTIFIER with SymbolType.IDENTIFIER, Operator.Assign with SymbolType.OPERATOR,
-                rule(RuleName.EXPRESSION), work(";"))
+                identifier(), operator(Operator.Assign), rule(RuleName.EXPRESSION), work(";"))
     }
     nonTerminal("Return") {
         reproducedSymbolsSequence(
