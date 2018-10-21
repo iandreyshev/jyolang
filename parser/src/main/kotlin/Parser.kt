@@ -1,11 +1,17 @@
 package parser
 
 import grammar.*
+import parser.comparator.IComparator
 import token.Token
 import java.util.*
 
-class Parser {
-    fun execute(root: GrammarSymbol, table: ParsingTable, lexer: Iterator<Token>) {
+class Parser(
+        private val root: GrammarSymbol,
+        private val table: ParsingTable,
+        private val comparator: IComparator
+) {
+
+    fun execute(lexer: Iterator<Token>) {
         val stack = Stack<GrammarSymbol>()
         stack.add(Terminal.endOfInput().toSymbol())
         stack.add(root)
@@ -13,6 +19,9 @@ class Parser {
         var tokenPosition = 0
 
         while (stack.peek().terminal?.isDollar != true) {
+            val topTerminal: Terminal? by lazy {
+                stack.peek().terminal
+            }
             val topNonTerminal: NonTerminal? by lazy {
                 stack.peek().nonTerminal
             }
@@ -21,15 +30,15 @@ class Parser {
             }
 
             println()
-//            println(stack.joinToString(" "))
-//            println(lexer.toString())
+            println(stack.joinToString(" "))
+            println("topTerminal '$topTerminal'")
             println("topNonTerminal '$topNonTerminal'")
             println("productionFromTable '$productionFromTable'")
             println("tokenPosition token '$tokenPosition' '$token'")
-            println("stack.peek().terminal '${stack.peek().terminal}")
+            println("stack.peek().terminal '${stack.peek().terminal}'")
 
             when {
-                stack.peek().terminal?.type == token.type -> {
+                topTerminal != null && comparator.compare(topTerminal, token) -> {
                     stack.pop()
                     token = lexer.next()
                     ++tokenPosition
@@ -50,4 +59,5 @@ class Parser {
             }
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package grammar.print
 
 import grammar.Grammar
+import grammar.rules.YOLANG
 
 /**
  * Print grammar for http://andrewduncan.net/parsing/index.html
@@ -30,4 +31,8 @@ object AndrewDuncanToStringConverter {
         return result
     }
 
+}
+
+fun main(args: Array<String>) {
+    println(AndrewDuncanToStringConverter.toString(YOLANG))
 }

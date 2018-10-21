@@ -5,29 +5,34 @@ import grammar.SymbolType
 
 val MATH_EXPRESSION = grammarRules {
     nonTerminal(RuleName.MATH_EXPRESSION) {
-        reproducedRulesSequence("Expr")
+        reproducedRulesSequence(EXPR)
     }
-    nonTerminal("Expr") {
-        reproducedRulesSequence("Term", "TailExpr")
+    nonTerminal(EXPR) {
+        reproducedRulesSequence(TERM, TAIL_EXPR)
     }
-    nonTerminal("TailExpr") {
-        reproducedSymbolsSequence(operator(Operator.Plus), rule("Term"), rule("TailExpr"))
-        reproducedSymbolsSequence(operator(Operator.Minus), rule("Term"), rule("TailExpr"))
+    nonTerminal(TAIL_EXPR) {
+        reproducedSymbolsSequence(operator(Operator.Plus), rule(TERM), rule(TAIL_EXPR))
+        reproducedSymbolsSequence(operator(Operator.Minus), rule(TERM), rule(TAIL_EXPR))
         reproducedEmptySymbol()
     }
-    nonTerminal("Term") {
-        reproducedRulesSequence("Factor", "TailTerm")
+    nonTerminal(TERM) {
+        reproducedRulesSequence(FACTOR, TAIL_TERM)
     }
-    nonTerminal("TailTerm") {
-        reproducedSymbolsSequence(operator(Operator.Mul), rule("Factor"), rule("TailTerm"))
-        reproducedSymbolsSequence(operator(Operator.Div), rule("Factor"), rule("TailTerm"))
+    nonTerminal(TAIL_TERM) {
+        reproducedSymbolsSequence(operator(Operator.Mul), rule(FACTOR), rule(TAIL_TERM))
+        reproducedSymbolsSequence(operator(Operator.Div), rule(FACTOR), rule(TAIL_TERM))
         reproducedEmptySymbol()
     }
-    nonTerminal("Factor") {
-        reproducedSymbolsSequence(work("("), rule("Expr"), work(")"))
-        reproducedSymbolsSequence(operator(Operator.Minus), rule("Factor"))
-        reproducedSymbolsSequence("IntegerLiteral" with SymbolType.NUMBER)
-        reproducedSymbolsSequence("FloatLiteral" with SymbolType.NUMBER)
-        reproducedSymbolsSequence(identifier())
+    nonTerminal(FACTOR) {
+        reproducedSymbolsSequence(operator("("), rule(EXPR), operator(")"))
+        reproducedSymbolsSequence(operator(Operator.Minus), rule(FACTOR))
+        reproducedSymbolsSequence(rule(RuleName.VAR_READ))
+        reproducedSymbol(number())
     }
 }
+
+private const val EXPR = RuleName.MATH_EXPRESSION + "Expr"
+private const val TERM = RuleName.MATH_EXPRESSION + "Term"
+private const val TAIL_EXPR = RuleName.MATH_EXPRESSION + "TailExpr"
+private const val TAIL_TERM = RuleName.MATH_EXPRESSION + "TailTerm"
+private const val FACTOR = RuleName.MATH_EXPRESSION + "Factor"

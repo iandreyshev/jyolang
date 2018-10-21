@@ -2,6 +2,7 @@ package dsl
 
 import grammar.*
 import grammar.dsl.GDSLGrammarSymbol
+import grammar.rules.Literal
 import grammar.rules.RuleName
 
 typealias GDSLProduction = List<GDSLGrammarSymbol>
@@ -27,8 +28,7 @@ fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
                 if (gcNonTerminalSymbols.contains(gcSymbol.symbol)) {
                     GrammarSymbol.from(NonTerminal(gcSymbol.symbol))
                 } else {
-                    val terminal = Terminal(gcSymbol.symbol)
-                            .apply { type = gcSymbol.type ?: SymbolType.UNDEFINED }
+                    val terminal = Terminal(gcSymbol.symbol, gcSymbol.type ?: SymbolType.UNDEFINED)
                     GrammarSymbol.from(terminal)
                 }
             }
@@ -74,14 +74,15 @@ class GDSLRuleBuilder : IGDSLRuleBuilder {
 interface IGDSLProductionBuilder {
     fun reproducedRulesSequence(vararg symbols: String)
     fun reproducedSymbol(symbol: String, type: SymbolType)
+    fun reproducedSymbol(symbol: GDSLGrammarSymbol)
     fun reproducedSymbolsSequence(vararg symbols: GDSLGrammarSymbol)
     fun reproducedEmptySymbol()
 
     infix fun String.with(type: SymbolType) = GDSLGrammarSymbol(this, type)
     fun rule(ruleSymbol: String) = GDSLGrammarSymbol(ruleSymbol)
-    fun work(symbol: String) = symbol with SymbolType.WORK_OPERATOR
     fun operator(symbol: String) = symbol with SymbolType.OPERATOR
-    fun identifier() = RuleName.IDENTIFIER with SymbolType.IDENTIFIER
+    fun identifier() = Literal.Identifier with SymbolType.IDENTIFIER
+    fun number() = Literal.Number with SymbolType.NUMBER
 }
 
 private class GDSLProductionBuilder : IGDSLProductionBuilder {
@@ -94,6 +95,10 @@ private class GDSLProductionBuilder : IGDSLProductionBuilder {
 
     override fun reproducedSymbol(symbol: String, type: SymbolType) {
         mProductionsSymbols.add(listOf(GDSLGrammarSymbol(symbol, type)))
+    }
+
+    override fun reproducedSymbol(symbol: GDSLGrammarSymbol) {
+        reproducedSymbolsSequence(symbol)
     }
 
     override fun reproducedSymbolsSequence(vararg symbols: GDSLGrammarSymbol) {

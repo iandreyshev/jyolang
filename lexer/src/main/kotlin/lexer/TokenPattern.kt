@@ -15,16 +15,15 @@ internal object TokenPattern {
             "|${Keyword.Condition}" +
             "|${Keyword.ConditionElse}" +
             "|${Keyword.Cycle}" +
-            "|${Keyword.VariableDecl}"
+            "|${Keyword.VariableDecl}" +
+            "|${Keyword.Return}"
 
     const val TYPE_NAME = Type.Int +
             "|${Type.Float}" +
             "|${Type.Boolean}" +
             "|${Type.Array}"
 
-    const val SYMBOL_OPERATOR = "\\+|\\-|\\*|\\/|\\="
-
-    const val WORK_SYMBOL = "\\:|\\,|\\;|->|\\[|\\]|\\(|\\)|\\{|\\}"
+    const val SYMBOL_OPERATOR = "->|\\+|\\-|\\*|\\/|\\=|\\:|\\,|\\;|\\[|\\]|\\(|\\)|\\{|\\}|\\<|\\>"
 
     const val COMMENT = "\\/\\/(.|\n^ \n)*"
 

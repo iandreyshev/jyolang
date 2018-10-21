@@ -7,20 +7,20 @@ class YolangParserTest : GrammarParsingTest(YOLANG) {
 
     @Test
     fun decl() = parse("""
-        func Identifier ( ) -> Int : {
-            var Identifier : Array < Int > ;
-            return Identifier ;
+        func Declaration() -> Int: {
+            var Identifier: Array<Int>;
+            return Identifier;
         }
         """.trimIndent())
 
     @Test
     fun loop() = parse("""
-        func id ( id : Float ) -> Array < Bool > : {
-            var id : Int ;
-                id = FloatLiteral ;
-            while ( true ) {
-                var id : Float ;
-                id = - IntegerLiteral ;
+        func id(id: Float) -> Array<Bool>: {
+            var id: Int;
+            id = FloatLiteral;
+            while(true) {
+                var id: Float;
+                id = -IntegerLiteral;
             }
         }
         """.trimIndent())

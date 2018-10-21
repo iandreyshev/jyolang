@@ -8,6 +8,7 @@ enum class SymbolType {
     NUMBER,
 
     // Keywords
+    KEYWORD_YO,
     KEYWORD_FUNCTION,
     KEYWORD_IF,
     KEYWORD_ELSE,
@@ -17,7 +18,6 @@ enum class SymbolType {
 
     // Operators
     OPERATOR,
-    WORK_OPERATOR,
 
     // Types
     TYPE_INT,
@@ -30,6 +30,6 @@ enum class SymbolType {
     BOOLEAN_FALSE,
 
     // Tools
-    END_OF_FILE,
-    UNDEFINED;
+    END_OF_INPUT,
+    UNDEFINED
 }
