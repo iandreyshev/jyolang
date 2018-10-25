@@ -1,47 +1,67 @@
 import grammar.rules.YOLANG
 import org.junit.Test
 
-// TODO: Доклад про AST в .NET из GoogleDrive
-// TODO: Во понедельник в 13 00 лекция заканчивается в 522
 class YolangParserTest : GrammarParsingTest(YOLANG) {
 
     @Test
     fun decl() = parse("""
-        func Declaration() -> Int: {
-            var Identifier: Array<Int>;
-            return Identifier;
+        func Swap(array: Array<Int>, first: Int, second: Int) -> Array<Int>: {
+            var temp: Int = array[first];
+            array[first] = array[second];
+            array[second] = temp;
+
+            return array;
+        }
+
+        func BubbleSort(array: Array<Int>) -> Array<Int>: {
+            var isSwapCompleted: Bool = true;
+            var maxIndex: Int = GetMaxIndex(array);
+
+            while (isSwapCompleted) {
+                var current: Int = 0;
+
+                while (current != maxIndex) {
+                    var next: Int = current + 1;
+
+                    if (array[current] > array[current]) {
+                        array = Swap(array, current, next);
+                        isSwapCompleted = true;
+                    }
+
+                    current = next;
+                }
+            }
+
+            return array;
         }
         """.trimIndent())
 
     @Test
     fun loop() = parse("""
-        func id(id: Float) -> Array<Bool>: {
-            var id: Int;
-            id = FloatLiteral;
-            while(true) {
-                var id: Float;
-                id = -IntegerLiteral;
-            }
+        func getElementFromArray(array: Array<Float>) -> Float: {
+            var index: Int;
+            index = getIndex(0);
+
+            while()
+
+            re
         }
         """.trimIndent())
 
     @Test
     fun arraysInArray() = parse("""
-        func id ( id : Int , id : Float ) -> Int : {
-            var id : Bool ;
-            return id ;
+        func id(id: Int, id: Float) -> Int : {
+            var id: Bool;
+            return id;
         }
 
-        func id ( id : Array < Array < Array < Int > > > ) -> Int :
-            return literal ;
+        func id (id: Array<Array<Array<Int>>>) -> Int :
+            return literal;
     """.trimIndent())
 
     @Test
-    fun condition()  = parse("""
-        func id ( id : Int ) -> Int : {
-            if ( true ) {
-                return literal ;
-            }
+    fun condition() = parse("""
+        func main() -> Int : {
 
             return id ;
         }

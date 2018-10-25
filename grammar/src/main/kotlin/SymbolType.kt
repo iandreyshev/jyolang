@@ -8,7 +8,6 @@ enum class SymbolType {
     NUMBER,
 
     // Keywords
-    KEYWORD_YO,
     KEYWORD_FUNCTION,
     KEYWORD_IF,
     KEYWORD_ELSE,
@@ -17,7 +16,7 @@ enum class SymbolType {
     KEYWORD_RETURN,
 
     // Operators
-    OPERATOR,
+    SYMBOL_OPERATOR,
 
     // Types
     TYPE_INT,

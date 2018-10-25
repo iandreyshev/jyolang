@@ -21,11 +21,10 @@ object Comparator : IComparator {
         SymbolType.TYPE_ARRAY,
         SymbolType.BOOLEAN_TRUE,
         SymbolType.BOOLEAN_FALSE,
-        SymbolType.KEYWORD_YO,
         SymbolType.UNDEFINED -> {
             terminal.type == token.type
         }
-        SymbolType.OPERATOR -> {
+        SymbolType.SYMBOL_OPERATOR -> {
             terminal.literal == token.terminal.literal
         }
         SymbolType.END_OF_INPUT -> {

@@ -43,6 +43,7 @@ val YOLANG = grammarOf {
         reproducedRulesSequence("Loop")
         reproducedRulesSequence("Decl")
         reproducedRulesSequence("Assign")
+        reproducedRulesSequence("Print")
         reproducedRulesSequence("Return")
         reproducedRulesSequence("CompositeStatement")
     }
@@ -63,12 +64,27 @@ val YOLANG = grammarOf {
     }
     nonTerminal("Decl") {
         reproducedSymbolsSequence(
-                Keyword.VariableDecl with SymbolType.KEYWORD_VAR, identifier(), operator(":"),
-                rule("Type"), operator(";"))
+                Keyword.VariableDecl with SymbolType.KEYWORD_VAR, identifier(),
+                operator(":"), rule("Type"), rule("TailDecl"), operator(";"))
+    }
+    nonTerminal("TailDecl") {
+        reproducedSymbolsSequence(operator(Operator.Assign), rule(RuleName.EXPRESSION))
+        reproducedEmptySymbol()
     }
     nonTerminal("Assign") {
         reproducedSymbolsSequence(
-                identifier(), operator(Operator.Assign), rule(RuleName.EXPRESSION), operator(";"))
+                rule("AssignSubject"), operator(Operator.Assign), rule(RuleName.EXPRESSION), operator(";"))
+    }
+    nonTerminal("AssignSubject") {
+        reproducedSymbolsSequence(identifier(), rule("TailAssignSubject"))
+    }
+    nonTerminal("TailAssignSubject") {
+        reproducedRulesSequence(RuleName.GET_BY_INDEX)
+        reproducedEmptySymbol()
+    }
+    nonTerminal("Print") {
+        reproducedSymbolsSequence(
+                operator(Operator.Print), rule(RuleName.EXPRESSION), operator(";"))
     }
     nonTerminal("Return") {
         reproducedSymbolsSequence(
@@ -83,17 +99,7 @@ val YOLANG = grammarOf {
         reproducedRulesSequence("Statement", "StatementList")
         reproducedEmptySymbol()
     }
-    nonTerminal(RuleName.EXPRESSION) {
-        reproducedRulesSequence(RuleName.MATH_EXPRESSION)
-    }
-    nonTerminal(RuleName.VAR_READ) {
-        reproducedSymbol(identifier())
-        reproducedRulesSequence(RuleName.FUNCTION_CALL)
-        reproducedSymbol(Keyword.BooleanTrue, SymbolType.BOOLEAN_TRUE)
-        reproducedSymbol(Keyword.BooleanFalse, SymbolType.BOOLEAN_FALSE)
-    }
-    rules(MATH_EXPRESSION)
-    rules(FUNCTION_CALL)
+    rules(EXPRESSION)
 }
 
 object Literal {
@@ -103,13 +109,10 @@ object Literal {
 
 object RuleName {
     const val EXPRESSION = "Expression"
-    const val MATH_EXPRESSION = "MathExpression"
-    const val FUNCTION_CALL = "FunctionCall"
-    const val VAR_READ = "VariableRead"
+    const val GET_BY_INDEX = "GetByIndex"
 }
 
 object Keyword {
-    const val Yo = "Yo"
     const val Function = "func"
     const val Condition = "if"
     const val ConditionElse = "else"
@@ -128,6 +131,14 @@ object Type {
 }
 
 object Operator {
+    const val Print = ">>"
+    const val Or = "||"
+    const val And = "&&"
+    const val Not = "!"
+    const val Less = "<"
+    const val More = ">"
+    const val Equal = "=="
+    const val NotEqual = "!="
     const val Plus = "+"
     const val Minus = "-"
     const val Mul = "*"

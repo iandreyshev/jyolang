@@ -8,11 +8,18 @@ import java.lang.Exception
 
 class Lexer(private val text: String) : Iterator<Token> {
 
-    private var mCaretPosition = 0
-    private var mSeparatorPassed = true
     private val mIsEOF: Boolean
         get() = mCaretPosition >= text.length
-    private var mToken: Token = Token("", SymbolType.UNDEFINED)
+    private val mTakeActions = listOf(
+            ::takeInvalidIdentifier,
+            ::takeIdentifier,
+            ::takeNumber,
+            ::takeSymbolOperator,
+            ::takeUndefined
+    )
+
+    private var mCaretPosition = 0
+    private var mLastToken: Token = Token("", SymbolType.UNDEFINED)
 
     override fun hasNext(): Boolean {
         skipGarbage()
@@ -27,34 +34,17 @@ class Lexer(private val text: String) : Iterator<Token> {
     }
 
     private fun read(): Token {
-        if (skipGarbage()) {
-            mSeparatorPassed = true
-        }
+        skipGarbage()
 
         if (mIsEOF) {
-            return mToken
+            return mLastToken
         }
 
-        when {
-            TokenPattern.INVALID_IDENTIFIER take ::undefined -> {
-                // Do nothing
-            }
-            now(TokenPattern.IDENTIFIER) && (
-                    TokenPattern.LETTER_OPERATOR take ::letterOperator
-                            || TokenPattern.TYPE_NAME take ::typeName
-                            || TokenPattern.IDENTIFIER take ::identifier) -> {
-                mSeparatorPassed = false
-            }
-            TokenPattern.NUMBER take ::number -> {
-                mSeparatorPassed = false
-            }
-            TokenPattern.SYMBOL_OPERATOR take ::symbolOperator -> {
-                mSeparatorPassed = true
-            }
-            else -> Token(text.take(1), SymbolType.UNDEFINED)
+        mTakeActions.any { takeFunction ->
+            takeFunction()
         }
 
-        return mToken
+        return mLastToken
     }
 
     private fun skipGarbage(): Boolean {
@@ -77,9 +67,6 @@ class Lexer(private val text: String) : Iterator<Token> {
         return position != mCaretPosition
     }
 
-    private fun now(pattern: String): Boolean =
-            pattern.toPattern().matcher(text).find(mCaretPosition)
-
     private fun getBy(pattern: String): String? = try {
         val patternFromStart = "^($pattern)".toPattern()
         val textToRead = text.subSequence(mCaretPosition, text.length)
@@ -91,55 +78,92 @@ class Lexer(private val text: String) : Iterator<Token> {
         null
     }
 
-    private infix fun String.take(constructor: (String) -> Unit): Boolean {
-        getBy(this)?.let {
-            mCaretPosition += it.length
-            constructor(it)
-            return true
+    private fun takeInvalidIdentifier(): Boolean {
+        val invalidLiteral = getBy(TokenPattern.INVALID_IDENTIFIER) ?: return false
+        mCaretPosition += invalidLiteral.length
+        mLastToken = Token(invalidLiteral, SymbolType.UNDEFINED, positionOf(invalidLiteral))
+        return true
+    }
+
+    private fun takeIdentifier(): Boolean {
+        val identifier = getBy(TokenPattern.IDENTIFIER) ?: return false
+
+        return takeLetterOperatorFrom(identifier)
+                || takeTypeName(identifier)
+                || takeIdentifier(identifier)
+    }
+
+    private fun takeLetterOperatorFrom(identifier: String): Boolean {
+        val literal = getBy(TokenPattern.LETTER_OPERATOR)
+
+        if (literal?.length != identifier.length) {
+            return false
         }
-        return false
-    }
 
-    private fun identifier(literal: String) {
-        mToken = Token(literal, SymbolType.IDENTIFIER, positionBefore(literal))
-    }
-
-    private fun letterOperator(literal: String) {
-        val type = when (literal) {
+        val type = when (identifier) {
             Keyword.Function -> SymbolType.KEYWORD_FUNCTION
             Keyword.Condition -> SymbolType.KEYWORD_IF
             Keyword.ConditionElse -> SymbolType.KEYWORD_ELSE
             Keyword.Cycle -> SymbolType.KEYWORD_WHILE
             Keyword.VariableDecl -> SymbolType.KEYWORD_VAR
             Keyword.Return -> SymbolType.KEYWORD_RETURN
-            else -> SymbolType.UNDEFINED
+            else -> return false
         }
-        mToken = Token(literal, type, positionBefore(literal))
+
+        mCaretPosition += literal.length
+        mLastToken = Token(literal, type, positionOf(literal))
+
+        return true
     }
 
-    private fun typeName(literal: String) {
+    private fun takeTypeName(identifier: String): Boolean {
+        val literal = getBy(TokenPattern.TYPE_NAME)
+
+        if (literal?.length != identifier.length) {
+            return false
+        }
+
         val type = when (literal) {
             Type.Int -> SymbolType.TYPE_INT
             Type.Float -> SymbolType.TYPE_FLOAT
             Type.Boolean -> SymbolType.TYPE_BOOLEAN
             Type.Array -> SymbolType.TYPE_ARRAY
-            else -> SymbolType.UNDEFINED
+            else -> return false
         }
-        mToken = Token(literal, type, positionBefore(literal))
+
+        mCaretPosition += literal.length
+        mLastToken = Token(literal, type, positionOf(literal))
+
+        return true
     }
 
-    private fun number(literal: String) {
-        mToken = Token(literal, SymbolType.NUMBER, positionBefore(literal))
+    private fun takeIdentifier(identifier: String): Boolean {
+        mCaretPosition += identifier.length
+        mLastToken = Token(identifier, SymbolType.IDENTIFIER, positionOf(identifier))
+        return true
     }
 
-    private fun symbolOperator(literal: String) {
-        mToken = Token(literal, SymbolType.OPERATOR, positionBefore(literal))
+    private fun takeNumber(): Boolean {
+        val literal = getBy(TokenPattern.NUMBER) ?: return false
+        mCaretPosition += literal.length
+        mLastToken = Token(literal, SymbolType.NUMBER, positionOf(literal))
+        return true
     }
 
-    private fun undefined(literal: String) {
-        mToken = Token("Undefined $literal", SymbolType.UNDEFINED, positionBefore(literal))
+    private fun takeSymbolOperator(): Boolean {
+        val literal = getBy(TokenPattern.SYMBOL_OPERATOR) ?: return false
+        mCaretPosition += literal.length
+        mLastToken = Token(literal, SymbolType.SYMBOL_OPERATOR, positionOf(literal))
+        return true
     }
 
-    private fun positionBefore(literal: String) = mCaretPosition - literal.length
+    private fun takeUndefined(): Boolean {
+        val literal = text[mCaretPosition].toString()
+        mCaretPosition += literal.length
+        mLastToken = Token(literal, SymbolType.UNDEFINED, positionOf(literal))
+        return true
+    }
+
+    private fun positionOf(literal: String) = mCaretPosition - literal.length
 
 }

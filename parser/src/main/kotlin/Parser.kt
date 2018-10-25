@@ -16,7 +16,7 @@ class Parser(
         stack.add(Terminal.endOfInput().toSymbol())
         stack.add(root)
         var token = lexer.next()
-        var tokenPosition = 0
+        var tokenNumber = 0
 
         while (stack.peek().terminal?.isDollar != true) {
             val topTerminal: Terminal? by lazy {
@@ -30,26 +30,28 @@ class Parser(
             }
 
             println()
-            println(stack.joinToString(" "))
-            println("topTerminal '$topTerminal'")
-            println("topNonTerminal '$topNonTerminal'")
-            println("productionFromTable '$productionFromTable'")
-            println("tokenPosition token '$tokenPosition' '$token'")
-            println("stack.peek().terminal '${stack.peek().terminal}'")
+            println("stack: ${stack.joinToString(" ")}")
+            println("stackTopTerminal: '$topTerminal'")
+            println("stackTopNonTerminal: '$topNonTerminal'")
+            println("productionFromTable: '$productionFromTable'")
+            println("token: '$token'")
+            println("tokenNumber: '$tokenNumber'")
 
             when {
                 topTerminal != null && comparator.compare(topTerminal, token) -> {
                     stack.pop()
                     token = lexer.next()
-                    ++tokenPosition
+                    ++tokenNumber
                 }
-                topNonTerminal == null ->
-                    throw ParserException(tokenPosition, stack.peek().toString())
-                productionFromTable == null -> {
-                    val expectedSymbols = table.productionsFor(topNonTerminal).keys
-                            .filter { it != Grammar.END_OF_INPUT_SYMBOL }
-                    throw ParserException(tokenPosition, token.terminal.literal, expectedSymbols)
-                }
+                topNonTerminal == null -> throw ParserException(
+                        position = tokenNumber,
+                        given = token.terminal.literal,
+                        expected = listOf(stack.peek().toString()))
+                productionFromTable == null -> throw ParserException(
+                        position = tokenNumber,
+                        given = token.terminal.literal,
+                        expected = table.productionsFor(topNonTerminal).keys
+                                .filter { it != Grammar.END_OF_INPUT_SYMBOL })
                 else -> {
                     stack.pop()
                     if (!productionFromTable.isEpsilon) {

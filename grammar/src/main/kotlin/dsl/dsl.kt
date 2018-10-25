@@ -3,7 +3,6 @@ package dsl
 import grammar.*
 import grammar.dsl.GDSLGrammarSymbol
 import grammar.rules.Literal
-import grammar.rules.RuleName
 
 typealias GDSLProduction = List<GDSLGrammarSymbol>
 typealias GDSLAlternatives = List<GDSLProduction>
@@ -80,7 +79,7 @@ interface IGDSLProductionBuilder {
 
     infix fun String.with(type: SymbolType) = GDSLGrammarSymbol(this, type)
     fun rule(ruleSymbol: String) = GDSLGrammarSymbol(ruleSymbol)
-    fun operator(symbol: String) = symbol with SymbolType.OPERATOR
+    fun operator(symbol: String) = symbol with SymbolType.SYMBOL_OPERATOR
     fun identifier() = Literal.Identifier with SymbolType.IDENTIFIER
     fun number() = Literal.Number with SymbolType.NUMBER
 }
