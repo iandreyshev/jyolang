@@ -1,24 +1,22 @@
-import dsl.GDSLRule
-import dsl.grammarOf
 import grammar.Grammar
-import grammar.rules.*
+import lexer.Lexer
 import parser.Parser
 import parser.ParsingTable
+import parser.comparator.Comparator
 
-abstract class GrammarParsingTest(private val grammar: Grammar) {
-
-    constructor(rules: List<GDSLRule>)
-            : this(grammarOf { rules(rules) })
+abstract class GrammarParsingTest(grammar: Grammar) {
 
     private val mTable = ParsingTable(grammar)
-    private val mParser: Parser = Parser()
+    private val mParser: Parser = Parser(grammar.root, mTable, Comparator)
 
     protected fun parse(text: String) {
         try {
-            mParser.execute(grammar.root, mTable, TestLexer(text + " ${Keyword.EOF}"))
-            println("Input is OK")
+            val lexer = Lexer(text)
+            mParser.execute(lexer)
         } catch (ex: Exception) {
-            println("Error: ${ex.message}")
+            assert(false) {
+                ex.message ?: ex
+            }
         }
         println()
     }

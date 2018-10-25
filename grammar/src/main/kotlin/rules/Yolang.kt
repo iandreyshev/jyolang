@@ -1,103 +1,147 @@
 package grammar.rules
 
 import dsl.*
+import grammar.SymbolType
 
 /**
  * yolang
  **/
 val YOLANG = grammarOf {
     nonTerminal("Program") {
-        reproduced("FunctionList", Keyword.EOF)
+        reproducedRulesSequence("FunctionList")
     }
     nonTerminal("FunctionList") {
-        reproduced("Function", "FunctionList")
+        reproducedRulesSequence("Function", "FunctionList")
         reproducedEmptySymbol()
     }
     nonTerminal("Function") {
-        reproduced(Keyword.Function, RuleName.IDENTIFIER, "(", "ParamDeclList", ")", "->", "Type", ":", "Statement")
+        reproducedSymbolsSequence(
+                Keyword.Function with SymbolType.KEYWORD_FUNCTION, identifier(), operator("("),
+                rule("ParamDeclList"), operator(")"), operator("->"), rule("Type"), operator(":"),
+                rule("Statement"))
     }
     nonTerminal("ParamDeclList") {
-        reproduced("ParamDecl", "TailParamDeclList")
+        reproducedRulesSequence("ParamDecl", "TailParamDeclList")
         reproducedEmptySymbol()
     }
     nonTerminal("TailParamDeclList") {
-        reproduced(",", "ParamDecl", "TailParamDeclList")
+        reproducedSymbolsSequence(operator(","), rule("ParamDecl"), rule("TailParamDeclList"))
         reproducedEmptySymbol()
     }
     nonTerminal("ParamDecl") {
-        reproduced(RuleName.IDENTIFIER, ":", "Type")
+        reproducedSymbolsSequence(identifier(), operator(":"), rule("Type"))
     }
     nonTerminal("Type") {
-        reproduced(TypeName.Int)
-        reproduced(TypeName.Float)
-        reproduced(TypeName.Boolean)
-        reproduced(TypeName.Array, "<", "Type", ">")
+        reproducedSymbol(Type.Int, SymbolType.TYPE_INT)
+        reproducedSymbol(Type.Float, SymbolType.TYPE_FLOAT)
+        reproducedSymbol(Type.Boolean, SymbolType.TYPE_BOOLEAN)
+        reproducedSymbolsSequence(
+                Type.Array with SymbolType.TYPE_ARRAY, operator("<"), rule("Type"), operator(">"))
     }
     nonTerminal("Statement") {
-        reproduced("Condition")
-        reproduced("Loop")
-        reproduced("Decl")
-        reproduced("Assign")
-        reproduced("Return")
-        reproduced("CompositeStatement")
+        reproducedRulesSequence("Condition")
+        reproducedRulesSequence("Loop")
+        reproducedRulesSequence("Decl")
+        reproducedRulesSequence("Assign")
+        reproducedRulesSequence("Print")
+        reproducedRulesSequence("Return")
+        reproducedRulesSequence("CompositeStatement")
     }
     nonTerminal("Condition") {
-        reproduced(Keyword.Condition, "(", RuleName.EXPRESSION, ")", "Statement", "OptionalElse")
+        reproducedSymbolsSequence(
+                Keyword.Condition with SymbolType.KEYWORD_IF, operator("("),
+                rule(RuleName.EXPRESSION), operator(")"), rule("Statement"), rule("OptionalElse"))
     }
     nonTerminal("OptionalElse") {
-        reproduced(Keyword.ConditionElse, "Statement")
+        reproducedSymbolsSequence(
+                Keyword.ConditionElse with SymbolType.KEYWORD_ELSE, rule("CompositeStatement"))
         reproducedEmptySymbol()
     }
     nonTerminal("Loop") {
-        reproduced(Keyword.CycleWithPreCondition, "(", RuleName.EXPRESSION, ")", "Statement")
+        reproducedSymbolsSequence(
+                Keyword.Cycle with SymbolType.KEYWORD_WHILE, operator("("),
+                rule(RuleName.EXPRESSION), operator(")"), rule("Statement"))
     }
     nonTerminal("Decl") {
-        reproduced(Keyword.VariableDecl, RuleName.IDENTIFIER, ":", "Type", ";")
+        reproducedSymbolsSequence(
+                Keyword.VariableDecl with SymbolType.KEYWORD_VAR, identifier(),
+                operator(":"), rule("Type"), rule("TailDecl"), operator(";"))
     }
-    nonTerminal("Assign") {
-        reproduced(RuleName.IDENTIFIER, "=", RuleName.EXPRESSION, ";")
-    }
-    nonTerminal("Return") {
-        reproduced("return", RuleName.EXPRESSION, ";")
-    }
-    nonTerminal("CompositeStatement") {
-        reproduced("{", "StatementList", "}")
-    }
-    nonTerminal("StatementList") {
-        reproduced("Statement", "StatementList")
+    nonTerminal("TailDecl") {
+        reproducedSymbolsSequence(operator(Operator.Assign), rule(RuleName.EXPRESSION))
         reproducedEmptySymbol()
     }
-    nonTerminal(RuleName.EXPRESSION) {
-        reproduced(Keyword.BooleanTrue)
-        reproduced(Keyword.BooleanFalse)
-        reproduced(RuleName.IDENTIFIER)
-        reproduced(RuleName.MATH_EXPRESSION)
-        reproduced(FUNCTION_CALL_RULES_ROOT)
+    nonTerminal("Assign") {
+        reproducedSymbolsSequence(
+                rule("AssignSubject"), operator(Operator.Assign), rule(RuleName.EXPRESSION), operator(";"))
     }
-    rules(MATH_EXPRESSION)
-    rules(FUNCTION_CALL)
+    nonTerminal("AssignSubject") {
+        reproducedSymbolsSequence(identifier(), rule("TailAssignSubject"))
+    }
+    nonTerminal("TailAssignSubject") {
+        reproducedRulesSequence(RuleName.GET_BY_INDEX)
+        reproducedEmptySymbol()
+    }
+    nonTerminal("Print") {
+        reproducedSymbolsSequence(
+                operator(Operator.Print), rule(RuleName.EXPRESSION), operator(";"))
+    }
+    nonTerminal("Return") {
+        reproducedSymbolsSequence(
+                Keyword.Return with SymbolType.KEYWORD_RETURN, rule(RuleName.EXPRESSION),
+                operator(";"))
+    }
+    nonTerminal("CompositeStatement") {
+        reproducedSymbolsSequence(
+                operator("{"), rule("StatementList"), operator("}"))
+    }
+    nonTerminal("StatementList") {
+        reproducedRulesSequence("Statement", "StatementList")
+        reproducedEmptySymbol()
+    }
+    rules(EXPRESSION)
+}
+
+object Literal {
+    const val Identifier = "Identifier"
+    const val Number = "Number"
+}
+
+object RuleName {
+    const val EXPRESSION = "Expression"
+    const val GET_BY_INDEX = "GetByIndex"
 }
 
 object Keyword {
     const val Function = "func"
     const val Condition = "if"
     const val ConditionElse = "else"
-    const val CycleWithPreCondition = "while"
+    const val Cycle = "while"
     const val VariableDecl = "var"
+    const val Return = "return"
     const val BooleanTrue = "true"
     const val BooleanFalse = "false"
-    const val EOF = "EOF"
 }
 
-object TypeName {
+object Type {
     const val Int = "Int"
     const val Float = "Float"
     const val Boolean = "Bool"
     const val Array = "Array"
 }
 
-object RuleName {
-    const val IDENTIFIER = "Identifier"
-    const val EXPRESSION = "Expression"
-    const val MATH_EXPRESSION = "MathExpression"
+object Operator {
+    const val Print = ">>"
+    const val Or = "||"
+    const val And = "&&"
+    const val Not = "!"
+    const val Less = "<"
+    const val More = ">"
+    const val Equal = "=="
+    const val NotEqual = "!="
+    const val Plus = "+"
+    const val Minus = "-"
+    const val Mul = "*"
+    const val Div = "/"
+    const val Assign = "="
 }

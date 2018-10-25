@@ -1,3 +1,5 @@
+apply plugin: 'kotlin'
+
 buildscript {
     ext.kotlin_version = '1.2.61'
 
@@ -12,13 +14,12 @@ buildscript {
 group 'ru.iandreyshev'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'kotlin'
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile project(":grammar")
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testCompile 'junit:junit:4.12'
 }

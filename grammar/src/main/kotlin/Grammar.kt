@@ -63,16 +63,13 @@ fun first(symbol: GrammarSymbol, rules: GrammarRules): Set<Terminal> {
 
             if (prodSymbolFirstSet.isNotEmpty()) {
                 firstSetForSymbol.addAll(prodSymbolFirstSet)
-
-                if (prodSymbolFirstSet.contains(Terminal.emptySymbol())) {
-                    firstSetForSymbol.remove(Terminal.emptySymbol())
-                    continue
-                }
-
                 break
             }
 
-            throw IllegalStateException("Function FIRST return empty set!")
+            throw IllegalStateException("""
+                Function FIRST return empty set!
+                Production symbol is $productionSymbol.
+            """.trimIndent())
         }
     }
 

@@ -1,44 +1,57 @@
 package parser
 
 import grammar.*
+import parser.comparator.IComparator
+import token.Token
 import java.util.*
 
-class Parser {
-    fun execute(root: GrammarSymbol, table: ParsingTable, lexer: Iterator<Terminal>) {
+class Parser(
+        private val root: GrammarSymbol,
+        private val table: ParsingTable,
+        private val comparator: IComparator
+) {
+
+    fun execute(lexer: Iterator<Token>) {
         val stack = Stack<GrammarSymbol>()
         stack.add(Terminal.endOfInput().toSymbol())
         stack.add(root)
         var token = lexer.next()
-        var tokenPosition = 0
+        var tokenNumber = 0
 
         while (stack.peek().terminal?.isDollar != true) {
+            val topTerminal: Terminal? by lazy {
+                stack.peek().terminal
+            }
             val topNonTerminal: NonTerminal? by lazy {
                 stack.peek().nonTerminal
             }
             val productionFromTable: Production? by lazy {
-                table[topNonTerminal ?: return@lazy null, token]
+                table[topNonTerminal ?: return@lazy null, token.terminal]
             }
 
-//            println()
-//            println(stack.joinToString(" "))
-//            println(lexer.toString())
-//            println(topNonTerminal)
-//            println(productionFromTable)
-//            println("$tokenPosition $token")
+            println()
+            println("stack: ${stack.joinToString(" ")}")
+            println("stackTopTerminal: '$topTerminal'")
+            println("stackTopNonTerminal: '$topNonTerminal'")
+            println("productionFromTable: '$productionFromTable'")
+            println("token: '$token'")
+            println("tokenNumber: '$tokenNumber'")
 
             when {
-                stack.peek().terminal == token -> {
+                topTerminal != null && comparator.compare(topTerminal, token) -> {
                     stack.pop()
                     token = lexer.next()
-                    ++tokenPosition
+                    ++tokenNumber
                 }
-                topNonTerminal == null ->
-                    throw ParserException(tokenPosition, stack.peek().toString())
-                productionFromTable == null -> {
-                    val expectedSymbols = table.productionsFor(topNonTerminal).keys
-                            .filter { it != Grammar.END_OF_INPUT_SYMBOL }
-                    throw ParserException(tokenPosition, token.literal, expectedSymbols)
-                }
+                topNonTerminal == null -> throw ParserException(
+                        position = tokenNumber,
+                        given = token.terminal.literal,
+                        expected = listOf(stack.peek().toString()))
+                productionFromTable == null -> throw ParserException(
+                        position = tokenNumber,
+                        given = token.terminal.literal,
+                        expected = table.productionsFor(topNonTerminal).keys
+                                .filter { it != Grammar.END_OF_INPUT_SYMBOL })
                 else -> {
                     stack.pop()
                     if (!productionFromTable.isEpsilon) {
@@ -48,4 +61,5 @@ class Parser {
             }
         }
     }
+
 }

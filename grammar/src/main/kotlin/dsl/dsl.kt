@@ -1,13 +1,15 @@
 package dsl
 
 import grammar.*
+import grammar.dsl.GDSLGrammarSymbol
+import grammar.rules.Literal
 
-typealias GDSLProduction = List<String>
+typealias GDSLProduction = List<GDSLGrammarSymbol>
 typealias GDSLAlternatives = List<GDSLProduction>
 typealias GDSLRule = Pair<String, GDSLAlternatives>
 
 fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
-    val builder = RuleBuilder().apply(director)
+    val builder = GDSLRuleBuilder().apply(director)
     val gcRules = builder.build()
     val gcNonTerminalSymbols = mutableSetOf<String>()
     val gcNewRules: MutableList<Pair<NonTerminal, MutableList<Production>>> = mutableListOf()
@@ -22,10 +24,11 @@ fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
         val gcAlternatives = gcRule.second
         val productions = gcAlternatives.map { gcProduction ->
             val grammarSymbols = gcProduction.map { gcSymbol ->
-                if (gcNonTerminalSymbols.contains(gcSymbol)) {
-                    GrammarSymbol.from(NonTerminal(gcSymbol))
+                if (gcNonTerminalSymbols.contains(gcSymbol.symbol)) {
+                    GrammarSymbol.from(NonTerminal(gcSymbol.symbol))
                 } else {
-                    GrammarSymbol.from(Terminal(gcSymbol))
+                    val terminal = Terminal(gcSymbol.symbol, gcSymbol.type ?: SymbolType.UNDEFINED)
+                    GrammarSymbol.from(terminal)
                 }
             }
             Production(grammarSymbols)
@@ -43,19 +46,19 @@ fun grammarOf(director: IGDSLRuleBuilder.() -> Unit): Grammar {
 }
 
 fun grammarRules(director: IGDSLRuleBuilder.() -> Unit): List<GDSLRule> =
-        RuleBuilder().apply(director).build()
+        GDSLRuleBuilder().apply(director).build()
 
 interface IGDSLRuleBuilder {
     fun nonTerminal(symbol: String, director: IGDSLProductionBuilder.() -> Unit)
     fun rules(rules: List<GDSLRule>)
 }
 
-class RuleBuilder : IGDSLRuleBuilder {
+class GDSLRuleBuilder : IGDSLRuleBuilder {
 
     private val mRules = mutableListOf<GDSLRule>()
 
     override fun nonTerminal(symbol: String, director: IGDSLProductionBuilder.() -> Unit) {
-        val builder = ProductionBuilder().apply(director)
+        val builder = GDSLProductionBuilder().apply(director)
         mRules.add(symbol to builder.build())
     }
 
@@ -68,20 +71,42 @@ class RuleBuilder : IGDSLRuleBuilder {
 }
 
 interface IGDSLProductionBuilder {
-    fun reproduced(vararg symbols: String)
+    fun reproducedRulesSequence(vararg symbols: String)
+    fun reproducedSymbol(symbol: String, type: SymbolType)
+    fun reproducedSymbol(symbol: GDSLGrammarSymbol)
+    fun reproducedSymbolsSequence(vararg symbols: GDSLGrammarSymbol)
     fun reproducedEmptySymbol()
+
+    infix fun String.with(type: SymbolType) = GDSLGrammarSymbol(this, type)
+    fun rule(ruleSymbol: String) = GDSLGrammarSymbol(ruleSymbol)
+    fun operator(symbol: String) = symbol with SymbolType.SYMBOL_OPERATOR
+    fun identifier() = Literal.Identifier with SymbolType.IDENTIFIER
+    fun number() = Literal.Number with SymbolType.NUMBER
 }
 
-private class ProductionBuilder : IGDSLProductionBuilder {
+private class GDSLProductionBuilder : IGDSLProductionBuilder {
 
     private val mProductionsSymbols = mutableListOf<GDSLProduction>()
 
-    override fun reproduced(vararg symbols: String) {
+    override fun reproducedRulesSequence(vararg symbols: String) {
+        mProductionsSymbols.add(symbols.map { GDSLGrammarSymbol(it) })
+    }
+
+    override fun reproducedSymbol(symbol: String, type: SymbolType) {
+        mProductionsSymbols.add(listOf(GDSLGrammarSymbol(symbol, type)))
+    }
+
+    override fun reproducedSymbol(symbol: GDSLGrammarSymbol) {
+        reproducedSymbolsSequence(symbol)
+    }
+
+    override fun reproducedSymbolsSequence(vararg symbols: GDSLGrammarSymbol) {
         mProductionsSymbols.add(symbols.toList())
     }
 
     override fun reproducedEmptySymbol() {
-        mProductionsSymbols.add(listOf(Terminal.emptySymbol().literal))
+        val emptySymbol = GDSLGrammarSymbol(Terminal.emptySymbol().literal)
+        mProductionsSymbols.add(listOf(emptySymbol))
     }
 
     fun build(): GDSLAlternatives = mProductionsSymbols

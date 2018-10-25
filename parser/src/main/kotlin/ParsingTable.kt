@@ -2,6 +2,7 @@ package parser
 
 import extension.addToList
 import grammar.*
+import grammar.rules.*
 
 typealias TableMap = MutableMap<String, MutableMap<String, Production?>>
 
@@ -28,8 +29,12 @@ class ParsingTable(
         mTableMap = fill(emptyTable)
     }
 
-    operator fun get(nonTerminal: NonTerminal, terminal: Terminal) =
-            mTableMap[nonTerminal, terminal]
+    operator fun get(nonTerminal: NonTerminal, terminal: Terminal): Production? =
+            when (terminal.type) {
+                SymbolType.IDENTIFIER -> mTableMap[nonTerminal.literal]?.get(Literal.Identifier)
+                SymbolType.NUMBER -> mTableMap[nonTerminal.literal]?.get(Literal.Number)
+                else -> mTableMap[nonTerminal.literal]?.get(terminal.literal)
+            }
 
     private fun fill(table: TableMap): TableMap {
         grammar.rules.rulesList.forEach { rule ->
@@ -61,18 +66,15 @@ class ParsingTable(
             mTableMap[nonTerminal.literal]
                     ?.filter { it.value != null }!!
 
-    private operator fun TableMap.get(nonTerminal: NonTerminal, terminal: Terminal) =
-            mTableMap[nonTerminal.literal]?.get(terminal.literal)
-
-    private fun TableMap.put(nonTerminal: NonTerminal, terminal: Terminal, production: Production) {
+    private fun TableMap.put(nonTerminal: NonTerminal, terminal: Terminal, newProduction: Production) {
         val terminalIndex = if (terminal.isEpsilon) {
             Terminal.endOfInput()
         } else {
             terminal
         }
-        if (get(nonTerminal.literal)?.get(terminalIndex.literal) == null) {
-            get(nonTerminal.literal)?.put(terminalIndex.literal, production)
-        }
+
+        get(nonTerminal.literal)
+                ?.putIfAbsent(terminalIndex.literal, newProduction)
     }
 
 }
